@@ -1,4 +1,4 @@
-use pico_args::{Arguments, Keys};
+use pico_args::{Arguments, Error, Keys};
 
 use crate::command::Command;
 
@@ -18,7 +18,7 @@ impl Config {
     pub fn build(
         mut args: Arguments,
         option_auth_token_env: Option<String>,
-    ) -> Result<Config, pico_args::Error> {
+    ) -> Result<Config, Error> {
         let port = args
             .opt_value_from_str(PORT_ARG_OPT)?
             .unwrap_or(DEFAULT_PORT);
@@ -26,9 +26,7 @@ impl Config {
         let auth_token = args
             .opt_value_from_str(AUTH_TOKEN_ARG_OPT)?
             .or(option_auth_token_env)
-            .ok_or(pico_args::Error::MissingOption(Keys::from(
-                AUTH_TOKEN_ARG_OPT,
-            )))?;
+            .ok_or(Error::MissingOption(Keys::from(AUTH_TOKEN_ARG_OPT)))?;
 
         let mut remaining = args.finish().into_iter();
         let command = Command::from_args(&mut remaining)?;
