@@ -1,4 +1,4 @@
-use std::ffi::OsString;
+use std::{ffi::OsString, fmt};
 
 use pico_args::Error;
 
@@ -244,6 +244,22 @@ impl Command {
         };
 
         Ok(response)
+    }
+}
+
+impl fmt::Display for Command {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Command::AddUser { .. } => write!(f, "adduser"),
+            Command::DelUser { .. } => write!(f, "deluser"),
+            Command::UpdatePass { .. } => write!(f, "updatepass"),
+            Command::UpdateName { .. } => write!(f, "updatename"),
+            Command::ListUsers => write!(f, "listusers"),
+            Command::Metrics => write!(f, "metrics"),
+            Command::Logs => write!(f, "logs"),
+            Command::MaxUsers { .. } => write!(f, "maxusers"),
+            Command::Maxconns { .. } => write!(f, "maxconns"),
+        }
     }
 }
 
