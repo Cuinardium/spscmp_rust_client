@@ -127,31 +127,31 @@ impl Command {
     pub fn to_spscmp_command(&self, auth_token: &str) -> String {
         match self {
             Command::AddUser { name, password } => format!(
-                "{} ADDUSER {} {}",
+                "{} ADDUSER {} {}\r\n",
                 auth_token,
                 name.to_str().unwrap(),
                 password.to_str().unwrap()
             ),
             Command::DelUser { name } => {
-                format!("{} DELUSER {}", auth_token, name.to_str().unwrap())
+                format!("{} DELUSER {}\r\n", auth_token, name.to_str().unwrap())
             }
             Command::UpdatePass { name, new_password } => format!(
-                "{} UPDATEPASS {} {}",
+                "{} UPDATEPASS {} {}\r\n",
                 auth_token,
                 name.to_str().unwrap(),
                 new_password.to_str().unwrap()
             ),
             Command::UpdateName { name, new_name } => format!(
-                "{} UPDATENAME {} {}",
+                "{} UPDATENAME {} {}\r\n",
                 auth_token,
                 name.to_str().unwrap(),
                 new_name.to_str().unwrap()
             ),
-            Command::ListUsers => format!("{} LISTUSERS", auth_token),
-            Command::Metrics => format!("{} METRICS", auth_token),
-            Command::Logs => format!("{} LOGS", auth_token),
-            Command::MaxUsers { num } => format!("{} MAXUSERS {}", auth_token, num),
-            Command::Maxconns { num } => format!("{} MAXCONNS {}", auth_token, num),
+            Command::ListUsers => format!("{} LISTUSERS\r\n", auth_token),
+            Command::Metrics => format!("{} METRICS\r\n", auth_token),
+            Command::Logs => format!("{} LOGS\r\n", auth_token),
+            Command::MaxUsers { num } => format!("{} MAXUSERS {}\r\n", auth_token, num),
+            Command::Maxconns { num } => format!("{} MAXCONNS {}\r\n", auth_token, num),
         }
     }
 
