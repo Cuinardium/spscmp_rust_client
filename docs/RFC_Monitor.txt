@@ -1,0 +1,231 @@
+
+
+
+
+Gonzalo Martone                                        20 de Junio, 2023
+Juan Bafico
+Franco Bosetti
+Santiago Ballerini
+
+        Simple POP3 Server Configuration and Monitoring Protocol                 
+
+Tabla de contenidos
+
+    1. Resumen ....................................................... 1
+    2. Operación Básica .............................................. 1
+    3. Comandos ...................................................... 3
+        ADDUSER ...................................................... 2
+        DELUSER ...................................................... 2
+        UPDATEPASS ................................................... 2
+        UPDATENAME ................................................... 2
+        LISTUSERS .................................................... 2
+        METRICS ...................................................... 3
+        LOGS ......................................................... 3
+        MAXUSERS ..................................................... 3
+        MAXCONNS ..................................................... 3
+        MAXSTORAGE ................................................... 3
+
+
+
+
+
+
+
+
+
+
+
+Junio 2023                                                      [Pag. 1]
+
+        Simple POP3 Server Configuration and Monitoring Protocol 
+
+
+
+1. Resumen
+
+    Este documento especifica un protocolo de comunicación para la
+    configuración y monitoreo de un servidor pop3 (RFC 1939). Este 
+    protocolo fue diseñado como parte del trabajo práctico especial de 
+    la materia protocolos de comunicación de la carrera de Ingeniería 
+    Informática del Instituto Tecnológico de Buenos Aires.
+
+2. Operación Básica
+   
+    El protocolo se basa en el intercambio de comandos y respuestas
+    entre un cliente y un servidor. El cliente envía un comando al 
+    servidor y este responde con un header de respuesta y en caso de
+    ser necesario un body. Una vez que el cliente recibe la respuesta
+    se cierra la conexión.
+
+    Los comandos consisten en un token de autenticación seguido de un
+    espacio y una palabra clave "case insensitive" que identifica el
+    comando. Luego de la palabra clave se pueden enviar argumentos
+    separados por espacios. El comando finaliza con un par CR LF.
+    Todo el contenido del comando debe consitir de caracteres ASCII
+    imprimibles. Tanto el token de autenticación como los argumentos
+    pueden contener hasta 40 caracteres.
+
+    Las respuestas consisten en un header de respuesta indicando si
+    el comando fue ejecutado correctamente o no. El header puede tomar 
+    los siguientes valores y es terminado con un par CR LF:
+
+        - OK: El comando fue ejecutado correctamente.
+        - ERR: El comando no fue ejecutado correctamente.
+
+    En caso de que el comando haya sido ejecutado correctamente, y este
+    requiera de un body, este se envía luego del header de respuesta.
+    El body consiste en una serie de líneas de texto terminadas en un
+    par CR LF. El body termina una vez que se recibe una línea que 
+    contenga un solo punto "." y un par CR LF.
+
+    En cuanto al token de autenticación, este debe ser acordado
+    previamente entre el cliente y el servidor. El protocolo no define
+    de que manera se realiza el acuerdo del token de autenticación.
+
+
+Junio 2023                                                      [Pag. 2]
+
+        Simple POP3 Server Configuration and Monitoring Protocol 
+
+3. Comandos
+
+    Los comandos definidos por el protocolo son los siguientes:
+
+    - ADDUSER: Agrega un usuario al servidor. El comando recibe como
+      argumentos el nombre de usuario y la contraseña del usuario a
+      agregar. El comando solamente devuelve un header de respuesta.
+      El usuario agregado tendrá un buzón de correo vacío.
+
+      Ejemplo:
+
+        C: auth_token ADDUSER user1 pass1
+        S: OK
+
+        C: auth_token ADDUSER existing_user pass2
+        S: ERR
+
+    - DELUSER: Elimina un usuario del servidor. El comando recibe como
+      argumento el nombre de usuario a eliminar. El comando solamente
+      devuelve un header de respuesta. Eliminar un usuario también 
+      elimina su buzón de correo.
+
+      Ejemplo:
+
+        C: auth_token DELUSER user1
+        S: OK
+
+        C: auth_token DELUSER non_existing_user
+        S: ERR
+
+    - UPDATEPASS: Actualiza la contraseña de un usuario. El comando
+      recibe como argumentos el nombre de usuario y la nueva contraseña
+      del usuario. El comando solamente devuelve un header de respuesta.
+
+      Ejemplo:
+
+        C: auth_token UPDATEPASS user1 new_pass
+        S: OK
+
+        C: auth_token UPDATEPASS non_existing_user new_pass
+        S: ERR
+
+    - UPDATENAME: Actualiza el nombre de un usuario. El comando recibe
+      como argumentos el nombre de usuario y el nuevo nombre del
+      usuario. El comando solamente devuelve un header de respuesta.
+
+      Ejemplo:
+
+        C: auth_token UPDATENAME user1 new_name
+        S: OK
+
+        C: auth_token UPDATENAME non_existing_user new_name
+        S: ERR
+
+    - LISTUSERS: Lista los usuarios del servidor. El comando no recibe
+      parámetros. El comando devuelve un header de respuesta y un body
+      donde cada línea contiene el nombre de un usuario seguido de un
+      par CR LF.
+
+      Ejemplo:
+
+        C: auth_token LISTUSERS
+        S: OK
+        S: user1
+        S: user2
+        S: user3
+        S: .
+
+        C: auth_token LISTUSERS
+        S: ERR
+
+
+Junio 2023                                                      [Pag. 3]
+
+        Simple POP3 Server Configuration and Monitoring Protocol 
+
+
+    - METRICS: Obtiene metricas del servidor. El comando no recibe
+      parámetros. El comando devuelve un header de respuesta y un body
+      donde la primera línea contiene la cantidad de usuarios conectados
+      actualmente al servidor, la segunda línea contiene la cantidad de
+      conexiones totales al servidor desde su inicio y la tercera línea
+      contiene la cantidad de bytes transferidos desde el inicio del
+      servidor. Todas las líneas terminan con un par CR LF.
+
+      Ejemplo:
+
+        C: auth_token METRICS
+        S: OK
+        S: 1
+        S: 2
+        S: 100
+        S: .
+
+        C: auth_token METRICS
+        S: ERR
+
+    - LOGS: Obtiene los accesos de todos los usuarios durante el tiempo
+      de ejecución del servidor. El comando no recibe parámetros. El
+      comando devuelve un header de respuesta y un body donde cada línea
+      contiene el nombre de un usuario seguido de un espacio y la fecha
+      de acceso del usuario. Todas las líneas terminan con un par CR LF.
+      La fecha de acceso debe tener el formato YYYY-MM-DD HH:MM:SS.
+
+      Ejemplo:
+        
+        C: auth_token LOGS
+        S: OK
+        S: user1 2021-06-20 20:00:00
+        S: user2 2021-06-20 20:00:01
+        S: user3 2021-06-20 20:00:02
+        S: .
+
+        C: auth_token LOGS
+        S: ERR
+
+    - MAXUSERS: Configura la cantidad máxima de usuarios que puede tener
+      el servidor. El comando recibe como argumento la cantidad máxima
+      de usuarios, este argumento debe ser mayor o igual que 1. 
+      El comando solamente devuelve un header de respuesta.
+
+      Ejemplo:
+
+        C: auth_token MAXUSERS 10
+        S: OK
+
+        C: auth_token MAXUSERS 0
+        S: ERR
+
+    - MAXCONNS: Configura la cantidad máxima de conexiones que puede
+      tener el servidor. El comando recibe como argumento la cantidad
+      máxima de conexiones, este argumento debe ser mayor o igual que 1.
+      El comando solamente devuelve un header de respuesta.
+
+      Ejemplo:
+
+        C: auth_token MAXCONNS 10
+        S: OK
+
+        C: auth_token MAXCONNS 0
+        S: ERR
+
