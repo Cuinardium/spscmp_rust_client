@@ -1,11 +1,12 @@
-use std::ffi::OsString;
+use pico_args::Arguments;
 
-use pico_args::{Arguments, Error};
+use crate::command::Command;
 
 const DEFAULT_PORT: u16 = 8889;
 const PORT_ARG_OPT: &str = "-p";
 const AUTH_TOKEN_ARG_OPT: &str = "-t";
 
+// ====================== CONFIG ======================
 
 pub struct Config {
     pub command: Command,
@@ -14,7 +15,7 @@ pub struct Config {
 }
 
 impl Config {
-       pub fn build(mut args: Arguments, auth_token_env: String) -> Result<Config, pico_args::Error> {
+    pub fn build(mut args: Arguments, auth_token_env: String) -> Result<Config, pico_args::Error> {
         let port = args
             .opt_value_from_str(PORT_ARG_OPT)?
             .unwrap_or(DEFAULT_PORT);
@@ -34,102 +35,12 @@ impl Config {
     }
 }
 
-// ====================== COMMANDS ======================
-
-//TODO: Implement commands
-#[derive(Debug, PartialEq)]
-pub enum Command {
-    ADDUSER(OsString, OsString),
-    DELUSER(OsString),
-    UPDATEPASS(OsString, OsString),
-    UPDATENAME(OsString, OsString),
-    LISTUSERS,
-    METRICS,
-    LOGS,
-    MAXUSERS(u32),
-    MAXCONNS(u32),
-}
-
-impl Command {
-    fn from_args(args: &mut impl Iterator<Item = OsString>) -> Result<Command, Error> {
-        let command = args.next().ok_or(Error::MissingArgument)?;
-        let command = command.to_str().ok_or(Error::ArgumentParsingFailed {
-            cause: String::from("Invalid command"),
-        })?;
-
-        let command = match command {
-            "adduser" => {
-                let name = args.next().ok_or(Error::ArgumentParsingFailed {
-                    cause: String::from("No name provided for adduser"),
-                })?;
-                let password = args.next().ok_or(Error::ArgumentParsingFailed {
-                    cause: String::from("No password provided for adduser"),
-                })?;
-
-                Command::ADDUSER(name, password)
-            }
-            "deluser" => {
-                let name = args.next().ok_or(Error::ArgumentParsingFailed {
-                    cause: String::from("No name provided for deluser"),
-                })?;
-
-                Command::DELUSER(name)
-            }
-            "updatepass" => {
-                let name = args.next().ok_or(Error::ArgumentParsingFailed {
-                    cause: String::from("No name provided for updatepass"),
-                })?;
-                let password = args.next().ok_or(Error::ArgumentParsingFailed {
-                    cause: String::from("No password provided for updatepass"),
-                })?;
-
-                Command::UPDATEPASS(name, password)
-            }
-            "updatename" => {
-                let name = args.next().ok_or(Error::ArgumentParsingFailed {
-                    cause: String::from("No name provided for updatename"),
-                })?;
-                let newname = args.next().ok_or(Error::ArgumentParsingFailed {
-                    cause: String::from("No new name provided for updatename"),
-                })?;
-
-                Command::UPDATENAME(name, newname)
-            }
-            "listusers" => Command::LISTUSERS,
-            "metrics" => Command::METRICS,
-            "logs" => Command::LOGS,
-            "maxusers" => {
-                let num = args
-                    .next()
-                    .ok_or(Error::ArgumentParsingFailed { cause: String::from("No number provided for maxusers") })?
-                    .into_string()
-                    .map_err(|_| Error::ArgumentParsingFailed { cause: String::from("Invalid number provided for maxusers") })?
-                    .parse::<u32>()
-                    .map_err(|_| Error::ArgumentParsingFailed { cause: String::from("Invalid number provided for maxusers") })?;
-
-                Command::MAXUSERS(num)
-            }
-            "maxconns" => {
-                let num = args
-                    .next()
-                    .ok_or(Error::ArgumentParsingFailed { cause: String::from("No number provided for maxconns") })?
-                    .into_string()
-                    .map_err(|_| Error::ArgumentParsingFailed { cause: String::from("Invalid number provided for maxconns") })?
-                    .parse::<u32>()
-                    .map_err(|_| Error::ArgumentParsingFailed { cause: String::from("Invalid number provided for maxconns") })?;
-                Command::MAXCONNS(num)
-            }
-            _ => return Err(Error::ArgumentParsingFailed { cause: String::from("Invalid command") }),
-        };
-
-        Ok(command)
-    }
-}
-
 // ====================== TESTS ======================
 
 #[cfg(test)]
 mod test {
+    use std::ffi::OsString;
+
     use super::*;
 
     #[test]
@@ -143,7 +54,7 @@ mod test {
             OsString::from("user"),
             OsString::from("pass"),
         ];
-        
+
         let args = Arguments::from_vec(args);
 
         let config = Config::build(args, String::from("hola")).unwrap();
@@ -152,7 +63,7 @@ mod test {
         assert_eq!(config.auth_token, "hola");
         assert_eq!(
             config.command,
-            Command::ADDUSER(OsString::from("user"), OsString::from("pass"))
+            Command::AddUser(OsString::from("user"), OsString::from("pass"))
         );
     }
 
@@ -173,7 +84,7 @@ mod test {
         assert_eq!(config.auth_token, "hola");
         assert_eq!(
             config.command,
-            Command::ADDUSER(OsString::from("user"), OsString::from("pass"))
+            Command::AddUser(OsString::from("user"), OsString::from("pass"))
         );
     }
 
@@ -194,7 +105,7 @@ mod test {
         assert_eq!(config.auth_token, "hola");
         assert_eq!(
             config.command,
-            Command::ADDUSER(OsString::from("user"), OsString::from("pass"))
+            Command::AddUser(OsString::from("user"), OsString::from("pass"))
         );
     }
 
@@ -213,7 +124,7 @@ mod test {
         assert_eq!(config.auth_token, "hola");
         assert_eq!(
             config.command,
-            Command::ADDUSER(OsString::from("user"), OsString::from("pass"))
+            Command::AddUser(OsString::from("user"), OsString::from("pass"))
         );
     }
 }
