@@ -1,60 +1,40 @@
-TPE-Protos
+Spscmp Rust  Client
 ===========
 
-Un servidor pop3 con capacidades de monitoreo y configuracion en runtime. 
+Un cliente de spscmp(Simple POP3 Server Configuration and Monitoring Protocol) escrito en rust. El protocolo en cuestion es utilizado para la configuracion y monitoreo de un servidor POP3, su especificacion se encuentra en el archivo `docs/RFC_SPSCMP.txt`. Este proyecto fue creado para practicar el uso del lenguaje, la implementacion original del cliente del protocolo se encuentra en el siguiente repositiorio: [TP-Protos](https://github.com/ImNotGone/TP-Protos).
 
 
 
 
 
-## Ubicacion de archivos relevantes
 
-- El codigo fuente del servidor se encuentra en la carpeta `server/src/`.
-- El codigo fuente del cliente de monitoreo se encuentra en la carpeta `monitor/src/`.
-- Los archivos con las reglas de construccion son los archivos `makefile`
-- El informe y los archivos RFC pertinentes se encuentran en la carpeta `docs/`
 ## Construccion
-Para generar los ejectuables basta con correr `make all` en la raiz del proyecto.
+Para generar los ejectuables basta con correr `cargo build`.
 ## Testeo
 
-Para correr los testeos desarrollados basta con correr `make test`.
+Para correr los testeos desarrollados basta con correr `cargo test`.
 ## Correr
 
-Los ejecutables a correr son `pop3_monitor` y `pop3_server`. Estos se encuentran en la raiz del proyecto.
-
-### Correr servidor POP3
-
-El ejecutable del servidor pop3 no recibe ningun argumento. La informacion de los usuarios se encuentra en el directorio `server/data/`.
+El ejecutable a correr es `spscmp_client`. Este se encuentra en la carpeta `target/debug/` o `target/release/` dependiendo con que flags se compilo el ejecutable.
 
 ### Correr cliente de monitor
 
-El ejecutable del cliente del monitor recibe como argumentos los siguientes
-
-- <direccion_del_servidor>: especifica la direccion ip del servidor de monitoreo.
-- <token_de_autenticacion>: especifica el token de autenticacion acordado con el servidor. De ser un token erroneo el servidor de monitoreo no respondera a las consultas.
-- <comando>: especifica el comando a correr del protocolo de monitoreo.
-- [argumento_de_comando]: para los comandos que precisan de argumentos.
-
-El orden en el que se reciben estos argumentos es el siguiente :
-- `./pop3_monitor <direccion_del_servidor> <token_de_autenticacion> <comando> [argumento_de_comando] [argumento_de_comando]`
-
-Los posibles comandos son:
-- -ADD_USER: Implementa el comando ADDUSER del protocolo, su primer argumento es el nombre de usuario y su segundo es la contraseña.
-- -DELETE_USER: Implementa el comando DELUSER del protocolo, su unico argumento es el nombre de usuario
-- -CHANGE_PASSWORD: Implementa el comando UPDATEPASS del protocolo, su primer argumento es el nombre de usuario y su segundo es la contraseña nueva.
-- -CHANGE_USERNAME: Implementa el comando UPDATENAME del protocolo, su primer argumento es el nombre de usuario y su segundo es el nombre de usuario nuevo.
-- -LIST: Implementa el comando LIST del protocolo, no tiene argumentos.
-- -METRICS: Implementa el comando METRICS del protocolo, no tiene argumentos.
-- -LOGS: Implementa el comando LOGS del protocolo, no tiene argumentos.
-- -SET_MAX_USERS: Implementa el comando MAXUSERS del protocolo, su unico argumento es la cantidad maxima de usuarios.
-- -SET_MAX_CONNS: Implementa el comando MAXCONNS del protocolo, su unico argumento es la cantidad maxima de conexiones.
+El ejecutable del cliente recibe como argumentos los siguientes
 
 
+- Uso: `spscmp_rust [opciones] <comando>`
+- Opciones:
+    - `-p <puerto>` Puerto en el que escuchar. De no ser especificado se utiliza el puerto 8889
+    - `-t <token>` Token de autenticación. De no ser especificado se utiliza el valor definido por la variable de entorno `SPSCMP_AUTH_TOKEN`,      si no se ha especificado un token en particular y la variable de entorno no esta definida el programa falla.
+- Comandos:
+    - `adduser <nombre> <contraseña>` Agregar un nuevo usuario
+    - `deluser <nombre>` Eliminar un usuario
+    - `updatepass <nombre> <contraseña>` Actualizar la contraseña de un usuario
+    - `updatename <nombre> <nuevonombre>` Actualizar el nombre de un usuario
+    - `listusers` Listar todos los usuarios
+    - `metrics` Obtener métricas del servidor
+    - `logs` Obtener registros del servidor
+    - `maxusers <num>` Establecer el número máximo de usuarios
+    - `maxconns <num>` Establecer el número máximo de conexiones
 
-## Autores
-
-- [@cuinardium](https://github.com/Cuinardium)
-- [@jBafico](https://github.com/jBafico)
-- [@francobosetti](https://github.com/francobosetti)
-- [@ImNotGone](https://github.com/ImNotGone)
 
