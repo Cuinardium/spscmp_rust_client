@@ -17,12 +17,7 @@ Para correr los testeos desarrollados basta con correr `cargo test`.
 
 El ejecutable a correr es `spscmp_client`. Este se encuentra en la carpeta `target/debug/` o `target/release/` dependiendo con que flags se compilo el ejecutable.
 
-### Correr cliente de monitor
-
-El ejecutable del cliente recibe como argumentos los siguientes
-
-
-- Uso: `spscmp_rust [opciones] <comando>`
+- Uso: `spscmp_client [opciones] <comando>`
 - Opciones:
     - `-p <puerto>` Puerto en el que escuchar. De no ser especificado se utiliza el puerto 8889
     - `-t <token>` Token de autenticación. De no ser especificado se utiliza el valor definido por la variable de entorno `SPSCMP_AUTH_TOKEN`,      si no se ha especificado un token en particular y la variable de entorno no esta definida el programa falla.
