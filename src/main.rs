@@ -1,7 +1,7 @@
 use pico_args::{Arguments, Error};
 use spscmp_client::config::Config;
 
-const HELP_MSG: &str = "Usage: spscmp_rust [options] <command>
+const HELP_MSG: &str = "Usage: spscmp_client [options] <command>
 Options:
     -p <port>       Port to listen on
     -t <token>      Authentication token
