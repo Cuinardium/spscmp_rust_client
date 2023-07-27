@@ -3,8 +3,9 @@ use spscmp_client::config::Config;
 
 const HELP_MSG: &str = "Usage: spscmp_client [options] <command>
 Options:
-    -p <port>       Port to listen on
-    -t <token>      Authentication token
+    -h <host>       Host to connect to, defaults to localhost
+    -p <port>       Port to listen on, defaults to 8889
+    -t <token>      Authentication token, defaults to SPSCMP_AUTH_TOKEN environment variable if set, otherwise required
 Commands:
     adduser <name> <password>    Add a new user
     deluser <name>               Delete a user

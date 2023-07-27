@@ -2,6 +2,8 @@ use pico_args::{Arguments, Error, Keys};
 
 use crate::command::Command;
 
+const DEFAULT_HOST: &str = "localhost";
+const HOST_ARG_OPT: &str = "-h";
 const DEFAULT_PORT: u16 = 8889;
 const PORT_ARG_OPT: &str = "-p";
 const AUTH_TOKEN_ARG_OPT: &str = "-t";
@@ -10,6 +12,7 @@ const AUTH_TOKEN_ARG_OPT: &str = "-t";
 
 pub struct Config {
     pub command: Command,
+    pub host: String,
     pub port: u16,
     pub auth_token: String,
 }
@@ -19,6 +22,10 @@ impl Config {
         mut args: Arguments,
         option_auth_token_env: Option<String>,
     ) -> Result<Config, Error> {
+        let host = args
+            .opt_value_from_str(HOST_ARG_OPT)?
+            .unwrap_or(DEFAULT_HOST.to_string());
+
         let port = args
             .opt_value_from_str(PORT_ARG_OPT)?
             .unwrap_or(DEFAULT_PORT);
@@ -33,6 +40,7 @@ impl Config {
 
         Ok(Config {
             command,
+            host,
             port,
             auth_token,
         })

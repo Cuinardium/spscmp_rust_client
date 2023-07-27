@@ -11,7 +11,9 @@ mod command;
 pub fn run(config: config::Config) -> Result<(), Box<dyn Error>> {
 
     // Open a TCP connection to the server
-    let mut stream = TcpStream::connect(format!("localhost:{}", config.port))
+    let socket_address = format!("{}:{}", config.host, config.port);
+
+    let mut stream = TcpStream::connect(socket_address)
         .map_err(|_| "Failed to connect to server")?;
 
     // Send the command
